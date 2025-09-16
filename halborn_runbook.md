@@ -79,6 +79,11 @@ This section provides exact, step-by-step runbooks for common operations. Follow
 
 Record in evidence: CLI outputs, artifact hash, manifest URL, comms approval.
 
+Current list of contracts that can be upgraded:
+- VeNEAR Token Contract
+- Voting
+- Lockup Contract
+
 #### 3.2 New Mainnet Deployment (no prior code)
 Owners: Proposer (Engineering lead), Approvers (Security Council), Executor (Governance account), Verifier (Independent).
 1) Build deterministically and co-sign release manifest.
@@ -130,6 +135,8 @@ Owners: Proposer (Engineering lead), Approvers (Security Council), Executor (Gov
    - Run migration entrypoint(s) in batches if needed; verify intermediate invariants.
 5) Verify code hash and post-migration invariants; publish attestation; extended monitoring window; archive evidence.
 Evidence (minimum): migration plan, rehearsal results, batch logs, invariants before/after, tx hashes, attestation link.
+
+Note: The data integrity of older proposals and their voting records are important to verify in the canary testnet instance.
 
 #### 3.5 Emergency Pause / Containment
 Owners: Initiator (On-call), Approver (Guardian multisig), Communicator (Comms lead), Investigator (Security/Eng).
@@ -516,7 +523,7 @@ Verification (always compare on-chain code hash to artifact digest):
 curl -s -X POST <rpc-url> -H 'Content-Type: application/json' \
   -d '{"jsonrpc":"2.0","method":"query","params":{"request_type":"view_code","account_id":"<contract>","finality":"final"},"id":1}'
 ```
-- Compare digests; handle encoding (hex vs base58) as needed in your verification script. Treat mismatches as incidents.
+- Compare digests; handle encoding (hex vs base58) as needed in your verification script. You should treat mismatches as incidents.
 
 Hash Verification SOP (copy-paste):
 1) Compute local SHA-256 (hex) of the artifact:
