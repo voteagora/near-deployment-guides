@@ -36,6 +36,7 @@ Key Roles (RACI):
 - Approvers (A): Security Council signers via governance
 - Executor (R): governance account (DAO/multisig)
 - Verifier (C): independent observers attest to hashes and outcomes
+- Initiator (I): A member from the governance team to facilitate the ceremony
 
 ---
 
