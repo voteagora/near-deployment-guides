@@ -144,9 +144,9 @@ Owners: Initiator (On-call), Approver (Guardian multisig), Communicator (Comms l
 Evidence (minimum): trigger indicators, pause tx hash, advisories, investigation notes, timeline.
 
 #### 3.6 Rollback to Last-Known-Good
-Owners: Proposer (Engineering/Security), Approvers (Security Council), Executor (Governance), Verifier (Independent).
+Owners: Proposer (Engineering/Security), Approvers (Security Council), Executor (Governance Multisig), Verifier (Independent).
 1) Confirm last-known-good artifact and manifest.
-2) Governance proposal to redeploy previous artifact; start timelock (unless emergency criteria met).
+2) Governance Multisig to redeploy to the previous artifact in the event of security compromise or faulty logic.
 3) Execute redeploy and verify code hash.
 4) Validate invariants, publish attestation, monitor, and complete postmortem.
 Evidence (minimum): artifact and manifest of LKG, rollback tx hash, invariants, attestation, postmortem.
