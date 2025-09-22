@@ -1,5 +1,13 @@
 # HoS Contract Deployment Bootstrap
 
+### Before getting started
+
+GM! Welcome to the House of Stake. If you are reading this, that means that you will deploying the House of Stake contracts for the NEAR ecosystem. This is a big responsability given that the Hosue of Stake contracts will eventually hold a lot of NEAR. We want to make sure that the processess you and your security council are preforming are done with the utmost security in mind. 
+
+As part of this deployment guide, Agora has received an approved list of security concerns and best practices for serious NEAR contracts from the auditing firm [Halborn](https://www.halborn.com/). It is the author's expectation that before you go and deploy these contracts on Mainnet that you and your team have read and understand the security concerns in this document: [Deploying and Securing High Value Contracts in the NEAR Ecosystem](https://github.com/voteagora/near-runbooks-temp/blob/main/halborn_runbook.md). This document contains many best practices and considerations around how one should deploy high value NEAR contracts. By continuing on with this deployment guide, you are acknoweldging that you have read and understood these security concerns. 
+
+With that, let's get started deploying the House of Stake.
+
 ### Introduction
 
 The following guide is a comprehensive set of instructions to enable the NF to bootstrap the governance contracts.
