@@ -23,6 +23,19 @@ This document is expected to be followed twice, once for the testnet deployment 
 
 ### Step 1 - Deploying a AstroDAO Multisig for the Security Council
 
+Prerequisites:
+
+- List of security council members
+- Account owned by the NF to perform the AstroDAO deployment
+- Review Halborn Role configuration section outlined below
+- A good/clear name in mind when creating the DAO i.e `hos-security.$ROOT_ACCOUNT_ID.near`
+
+#### What is AstroDAO?
+
+This is a DAO to be used by the security council. It serves as an additional layer of governance that uses proposals to execute actions on-chain. This multi-sig
+contract allows it's members to signal and take actions related to the House of Stake contracts. These contracts are based on SputnikDAO contract 
+and utilizes the Astro platform for easy creation. You will need to deploy this prior to completing step 2 in this document.
+
 Using the GUI: [https://astrodao.com/](https://astrodao.com/)
 
 Follow the full setup instructions for deployment here: https://github.com/near-daos/sputnik-dao-contract/blob/main/README.md
@@ -42,7 +55,7 @@ near call factory.astrodao.near create '{
     "policy": {
       "roles": [{
         "name": "council",
-        "kind": {"Group": ["alice.near", "bob.near", "charlie.near"]},
+        "kind": {"Group": ["council-member1.near", "council-member2.near", "council-member3.near"]},
         "permissions": ["*:*"],
         "vote_policy": {"weight_kind": "RoleWeight", "quorum": "70", "threshold": [7, 10]}
       }],
@@ -65,9 +78,13 @@ Security council member account IDs should be supplied here when following the i
 
 Alternatively, use the configuration example above to start defining roles as advised in the Halborn Runbook. 
 
+At the end of this process you should have:
+- AstroDAO account ID ex. `hos.astrodao.near`
+- This DAO will have the ownership role of the contract
+
 ### Step 2 - Deploying the HoS Contracts
 
-Prerequisites: 
+Prerequisites:
 
 - NEAR JS CLI installed on a secure machine
 - Root accountID - NF Foundation account with keys owned by the security council
@@ -155,3 +172,15 @@ Since each account has ability to approve and reject the transaction, one option
 - `$BASE_PROPOSAL_FEE` - This can be set to `0.1 * 10**24`, it's `0.1` NEAR initially but can be adjusted (increased) if there are too much spam and it's hard to moderate. It's non-refundable fee that the proposer pays in addition to added bytes fee.
 - `$VOTE_STORAGE_FEE` - `0.00125 * 10**24`, it's enough for `125 bytes`. I think this contract is slightly less, but it's a safe start.
 - `$GUARDIAN_ACCOUNT_ID` - Should be set as the same list as the `veNEAR` contract.
+
+At the end of the process you should have account IDs:
+- veNEAR:            v.$ROOT_ACCOUNT_ID.near
+- Voting:            vote.$ROOT_ACCOUNT_ID.near
+- AstroDAO and security council roles are properly configured with permissions and roles outlined in the Halborn Runbook
+
+### Finalization
+
+Agora will perform do UAT on all of the contracts provided on Testnet. Once completed and approved by both Agora and the security council all steps
+will need to be repeated for mainnet deployment mirroring the configurations here 1:1.
+
+Addresses for mainnet will be shared in accordance with the launch date expectations set by the Near Foundation.
