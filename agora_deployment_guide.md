@@ -180,7 +180,7 @@ At the end of the process you should have account IDs:
 
 ### What comes next
 
-The overall should be:
+The overall deployment flow should be:
 1. Deploy using the guide above to Testnet
 2. UAT and final smoke testing on Testnet 
 3. Small fixes and bug cleanup by Agora et al.
