@@ -10,6 +10,8 @@ Agora then adapted it to create the specific House of Stake deployment guide.
 
 Our goal is that the community can use these documents to as a reference when deploying the HoS contracts and other high‑value contracts in the NEAR ecosystem.
 
+We also hope that they serve as a comminity reference for other best practices until there is a better place for them in the official NEAR docs, or repos. 
+
 ## Who this is for
 
 These documents are generally for anyone in the NEAR ecosystem that is deploying high‑value contracts or interested in understanding the security considerations and best practices for deploying high‑value contracts in the NEAR ecosystem.
