@@ -2,7 +2,7 @@
 
 These guides define a secure, repeatable process to deploy the House of Stake (HoS) contracts on NEAR and operate high‑value contracts safely. These documents come from Agora's own problems and hiccups when deploying the HoS contracts on NEAR coming from an EVM background.
 
-After consulting with key members of the NEAR ecosystem including the NF, Illia, and the original contract authors, FastNEAR, we hired Halborn to create an auidted and attested security guide and runbooks for deploying high‑value contracts in the NEAR ecosystem.
+After consulting with key members of the NEAR ecosystem including the Lane Rettig of the NF, Gauntlet, Illia, and the original contract authors, FastNEAR, we hired Halborn to create an auidted and attested security guide and runbooks for deploying high‑value contracts in the NEAR ecosystem.
 
 Agora then adapted it to create the specific House of Stake deployment guide.
 
