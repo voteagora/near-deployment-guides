@@ -23,6 +23,13 @@ This document is expected to be followed twice, once for the testnet deployment 
 
 ### Step 1 - Deploying a AstroDAO Multisig for the Security Council
 
+Prerequisites:
+
+- List of security council members
+- Account owned by the NF to perform the AstroDAO deployment
+- Review Halborn Role configuration section outlined below
+- A good/clear name in mind when creating the DAO i.e `hos-security.$ROOT_ACCOUNT_ID.near`
+
 #### What is AstroDAO?
 
 This is a DAO to be used by the security council. It serves as an additional layer of governance that uses proposals to execute actions on-chain. This multi-sig
@@ -77,7 +84,7 @@ At the end of this process you should have:
 
 ### Step 2 - Deploying the HoS Contracts
 
-Prerequisites: 
+Prerequisites:
 
 - NEAR JS CLI installed on a secure machine
 - Root accountID - NF Foundation account with keys owned by the security council
