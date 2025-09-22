@@ -178,9 +178,21 @@ At the end of the process you should have account IDs:
 - Voting:            vote.$ROOT_ACCOUNT_ID.near
 - AstroDAO and security council roles are properly configured with permissions and roles outlined in the Halborn Runbook
 
-### Finalization
+### What comes next
 
-Agora will perform do UAT on all of the contracts provided on Testnet. Once completed and approved by both Agora and the security council all steps
-will need to be repeated for mainnet deployment mirroring the configurations here 1:1.
+The overall should be:
+1. Deploy using the guide above to Testnet
+2. UAT and final smoke testing on Testnet 
+3. Small fixes and bug cleanup by Agora et al.
+4. Deploy using the guide above to Mainnet
+5. Launch!
 
-Addresses for mainnet will be shared in accordance with the launch date expectations set by the Near Foundation.
+Once the deployment is completed and approved by both Agora and the security council on Testnet, all steps will need to be repeated for mainnet deployment mirroring the configurations here 1:1.
+
+However, there is a big disclaimer for Mainnet that since the addresses in the NEAR ecosystem are named addresses, we should be critical about what the name is for the deployment. For example, since these contracts will be living for a long time, it would be best to use a name that best describes the contracts such as:
+
+`lockup.houseofstake.near`
+or
+`vote.houseofstake.near`
+
+There is even talk of getting a new top level tld that would be fantastic. Either way, we should ensure that the House of Stake team or community picks a good named account that will last, given that this is will be a great way to brand the House of Stake for years to come.
