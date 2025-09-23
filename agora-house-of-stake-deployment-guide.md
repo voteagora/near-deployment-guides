@@ -214,3 +214,7 @@ near call <contract-account> update_contract "$CONTRACT_BYTES" --base64 --accoun
 For both VeNEAR and the voting contract once the security council ceremony has been completed through AstroDAO.
 
 Lastly Agora will test deploying new lockup contracts not through `upgrade_contract`; but rather by re-running the new deploy steps above. Commands will be supplied once the account Id's for the existing testnet contracts have been set.
+
+During this Testnet deployment, Agora will simulate a security council with 4 signers by creating testnet wallets and sharing the seed phrases with members of the Near Foundation Security council. 
+
+Please note that this will only happen during the Testnet deployment, for Mainnet, Agora will be one of the Security Council Signers but will not initiate the AstroDAO process to ensure proper configuration from the NF Security Council.
