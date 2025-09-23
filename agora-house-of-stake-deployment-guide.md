@@ -197,12 +197,10 @@ or
 
 There is even talk of getting a new top level tld that would be fantastic. Either way, we should ensure that the House of Stake team or community picks a good named account that will last, given that this is will be a great way to brand the House of Stake for years to come.
 
-Addresses for mainnet will be shared in accordance with the launch date expectations set by the Near Foundation.
-
 ### Upgradability
 
 During the testnet deployment, Agora will test the upgrade process through governance outlined in the Halborn Runbook. They will simulate creating a proposal with
-the hash of the wasm file generated for each of the contracts to be deployed. This will be published in the proposal body a long with the commit SHA of the latest
+the hash of the wasm file generated for each of the contracts to be deployed. This will be published in the proposal body along with the commit SHA of the latest
 release of the contracts in the repo. 
 
 The deployment keys that initiated the testnet contract will run:
@@ -215,4 +213,4 @@ near call <contract-account> update_contract "$CONTRACT_BYTES" --base64 --accoun
 
 For both VeNEAR and the voting contract once the security council ceremony has been completed through AstroDAO.
 
-Lastly Agora will test deploying new lockup contracts not through `upgrade_contract` but rather by re-running the new deploy steps above. Commands will be supplied once the account Id's for the existing testnet contracts have been set.
+Lastly Agora will test deploying new lockup contracts not through `upgrade_contract`; but rather by re-running the new deploy steps above. Commands will be supplied once the account Id's for the existing testnet contracts have been set.
