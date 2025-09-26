@@ -42,37 +42,6 @@ Follow the full setup instructions for deployment here: https://github.com/near-
 
 Configure with the roles outlined in the Halborn Runbook (cite **5. DAO Tooling Comparison (AstroDAO vs Custom Multisig))**:
 
-```bash
-# Create DAO with initial council
-near call factory.astrodao.near create '{
-  "name": "nf-security-council",
-  "args": {
-    "config": {
-      "name": "NF Security Council",
-      "purpose": "High-value contract governance",
-      "metadata": ""
-    },
-    "policy": {
-      "roles": [{
-        "name": "council",
-        "kind": {"Group": ["council-member1.near", "council-member2.near", "council-member3.near"]},
-        "permissions": ["*:*"],
-        "vote_policy": {"weight_kind": "RoleWeight", "quorum": "70", "threshold": [7, 10]}
-      }],
-      "default_vote_policy": {
-        "weight_kind": "RoleWeight",
-        "quorum": "70",
-        "threshold": [7, 10]
-      },
-      "proposal_bond": "1000000000000000000000000",
-      "proposal_period": "604800000000000",
-      "bounty_bond": "0",
-      "bounty_forgiveness_period": "0"
-    }
-  }
-}' --accountId deployer.near --deposit 10
-```
-
 Security council member account IDs should be supplied here when following the instructions outlined in the Sputnik DAO repo:
 `export COUNCIL='["council-member.testnet", "YOUR_ACCOUNT.testnet"]'`
 
