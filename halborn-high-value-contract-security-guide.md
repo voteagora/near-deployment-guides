@@ -1,6 +1,8 @@
 ## NEAR Foundation High-Value Contracts
 ### Guide to Secure Deployment, Upgradability, and Operations
 
+> **Note:** This guide uses the latest NEAR CLI (near-cli-rs) syntax. Ensure you have near-cli-rs v0.7.0 or later installed. Install with: `npm install -g near-cli-rs`
+
 ### Executive Summary
  A single unsafe deployment or upgrade can cause material loss, reputational damage, and ecosystem instability. This guide defines a secure, repeatable, and transparent way to deploy and upgrade NEAR contracts that executives can trust and engineers can execute. It combines governance, operational security, deterministic engineering, on-chain safety rails, and rigorous observability.
 
@@ -64,11 +66,11 @@ This section provides exact, step-by-step runbooks for common operations. Follow
 1) Confirm network and RPC endpoints are healthy.
 2) Verify current on-chain code hash and record it:
    ```bash
-   near state <contract>
+   near account view-account-summary <contract> network-config mainnet
    ```
 3) Check access keys for unexpected entries (record output):
    ```bash
-   near keys <contract>
+   near account list-keys <contract> network-config mainnet
    ```
 4) Confirm governance ownership/role mapping via your contract’s owner/role view methods (record outputs).
 5) Validate storage headroom (storage_usage vs account balance) and gas budgets for planned actions.
@@ -94,11 +96,11 @@ Owners: Proposer (Engineering lead), Approvers (Security Council), Executor (Gov
 5) Day-of: validate signer devices and environment (hardware wallets, isolated network).
 6) Execute deployment via governance account:
    ```bash
-   near deploy --accountId <contract> --wasmFile contract.wasm
+   near contract deploy <contract> use-file contract.wasm without-init-call network-config mainnet sign-with-keychain send
    ```
 7) Verify on-chain code hash matches artifact digest:
    ```bash
-   near state <contract>
+   near account view-account-summary <contract> network-config mainnet
    ```
 8) Run smoke tests (read-only and minimal state changes) and validate logs/events.
 9) Publish public attestation with tx links and artifact hash.
@@ -113,15 +115,17 @@ Owners: Proposer (Engineering lead), Approvers (Security Council), Executor (Gov
 4) Execute upgrade:
    - If external upgrade:
      ```bash
-     near deploy --accountId <contract> --wasmFile contract.wasm
+     near contract deploy <contract> use-file contract.wasm without-init-call network-config mainnet sign-with-keychain send
      ```
    - If self-upgrade (encode Wasm to base64 first):
      ```bash
-     base64 -w0 contract.wasm > code.b64  # macOS: base64 < contract.wasm | tr -d '\n' > code.b64
+     # Linux: base64 -w0 contract.wasm > code.b64
+     # macOS: base64 -i contract.wasm -o code.b64
      ```
      ```bash
-     near call <contract> upgrade "{\"code\":\"$(cat code.b64)\"}" \
-       --accountId <governance> --gas 300000000000000
+     near contract call-function as-transaction <contract> upgrade json-args "{\"code\":\"$(cat code.b64)\"}" \
+       prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' \
+       sign-as <governance> network-config mainnet sign-with-keychain send
      ```
 5) Verify code hash, run smoke tests, publish attestation, monitor 24–72h, archive evidence.
 Evidence (minimum): proposal link, tx hashes, on-chain code hash, artifact hash, smoke test outputs, attestation link.
@@ -144,7 +148,7 @@ Owners: Initiator (On-call), Approver (Guardian multisig), Communicator (Comms l
 1) Trigger: exploit indicators, code-hash mismatch, key compromise.
 2) Guardian multisig proposes and executes `pause` (no upgrades):
    ```bash
-   near call <contract> pause '{}' --accountId <guardian>
+   near contract call-function as-transaction <contract> pause json-args '{}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' sign-as <guardian> network-config mainnet sign-with-keychain send
    ```
 3) Notify internal responders; publish initial advisory if user risk exists.
 4) Investigate, decide on rollback vs hotfix path.
@@ -215,7 +219,7 @@ Key security, backup, and recovery (SOPs):
    - Increase threshold temporarily if quorum security is at risk.
    - For contract accounts with full-access keys, remove/rotate immediately:
      ```bash
-     near delete-key <account> <public-key>
+     near account delete-key <account> <public-key> network-config mainnet sign-with-keychain send
      ```
    - For function-call keys, revoke and re-issue with minimal scopes.
    - Conduct forensics and rotate any related secrets; publish an advisory if user impact is possible.
@@ -249,34 +253,65 @@ Key security, backup, and recovery (SOPs):
 
 **Setup example:**
 ```bash
-# Create DAO with initial council
-near call factory.astrodao.near create '{
-  "name": "nf-security-council",
-  "args": {
-    "config": {
-      "name": "NF Security Council",
-      "purpose": "High-value contract governance",
-      "metadata": ""
+# IMPORTANT: AstroDAO factory requires base64-encoded args parameter
+
+# Step 1: Define your council members
+export COUNCIL_MEMBERS='["alice.near", "bob.near", "charlie.near"]'
+
+# Step 2: Create the DAO configuration (args must be base64 encoded)
+# For a simple council-based DAO:
+export DAO_ARGS=$(echo -n '{
+  "config": {
+    "name": "NF Security Council",
+    "purpose": "High-value contract governance",
+    "metadata": ""
+  },
+  "policy": '"$COUNCIL_MEMBERS"'
+}' | base64 -w0)  # Use base64 without -w0 flag on macOS
+
+# Step 3: Deploy the DAO
+export DAO_NAME="nf-security-council"
+
+# Using near-cli (legacy):
+near call factory.astrodao.near create "{\"name\": \"$DAO_NAME\", \"args\": \"$DAO_ARGS\"}" \
+  --accountId deployer.near --deposit 10 --gas 150000000000000
+
+# OR using near-cli-rs:
+near contract call-function as-transaction factory.astrodao.near create json-args \
+  "{\"name\": \"$DAO_NAME\", \"args\": \"$DAO_ARGS\"}" \
+  prepaid-gas '150.0 Tgas' attached-deposit '10 NEAR' \
+  sign-as deployer.near network-config mainnet sign-with-keychain send
+
+# For a more complex DAO with custom voting policies (Advanced):
+# WARNING: Complex policies may require additional testing on testnet first
+export COMPLEX_DAO_ARGS=$(echo -n '{
+  "config": {
+    "name": "NF Security Council",
+    "purpose": "High-value contract governance",
+    "metadata": ""
+  },
+  "policy": {
+    "roles": [{
+      "name": "council",
+      "kind": {"Group": '"$COUNCIL_MEMBERS"'},
+      "permissions": ["*:*"],
+      "vote_policy": {"weight_kind": "RoleWeight", "quorum": "70", "threshold": [7, 10]}
+    }],
+    "default_vote_policy": {
+      "weight_kind": "RoleWeight",
+      "quorum": "70",
+      "threshold": [7, 10]
     },
-    "policy": {
-      "roles": [{
-        "name": "council",
-        "kind": {"Group": ["alice.near", "bob.near", "charlie.near"]},
-        "permissions": ["*:*"],
-        "vote_policy": {"weight_kind": "RoleWeight", "quorum": "70", "threshold": [7, 10]}
-      }],
-      "default_vote_policy": {
-        "weight_kind": "RoleWeight",
-        "quorum": "70",
-        "threshold": [7, 10]
-      },
-      "proposal_bond": "1000000000000000000000000",
-      "proposal_period": "604800000000000",
-      "bounty_bond": "0",
-      "bounty_forgiveness_period": "0"
-    }
+    "proposal_bond": "1000000000000000000000000",
+    "proposal_period": "604800000000000",
+    "bounty_bond": "0",
+    "bounty_forgiveness_period": "0"
   }
-}' --accountId deployer.near --deposit 10
+}' | base64 -w0)
+
+# Note: The complex policy configuration above may need adjustment based on the
+# specific version of sputnik-dao-contract deployed on the factory.
+# Test on testnet first with your factory contract (e.g., sputnik-v2.testnet)
 ```
 
 #### Custom Multisig Contract
@@ -324,6 +359,41 @@ impl Multisig {
 | Upgrade path | Built-in | Must implement |
 
 **Recommendation:** Start with AstroDAO for immediate needs. Consider custom multisig only if you have unique requirements that AstroDAO cannot meet.
+
+#### AstroDAO Deployment Troubleshooting
+
+**Common Issues and Solutions:**
+
+1. **"Smart contract panicked: panicked at 'Failed to deserialize input from JSON'"**
+   - **Cause:** The `args` parameter is not base64-encoded
+   - **Solution:** Ensure you base64-encode the entire config JSON before passing it
+
+2. **Complex policies failing to deploy**
+   - **Cause:** The policy structure may not match the factory contract's expected format
+   - **Solution:** Start with a simple council array first, then upgrade the policy after deployment
+   - **Example of working simple deployment:**
+   ```bash
+   export COUNCIL='["member1.near", "member2.near", "member3.near"]'
+   export DAO_ARGS=$(echo -n '{"config": {"name": "dao-name", "purpose": "DAO purpose", "metadata":""}, "policy": '$COUNCIL'}' | base64)
+   export DAO_NAME="your-dao-name"
+   near call factory.astrodao.near create "{\"name\": \"$DAO_NAME\", \"args\": \"$DAO_ARGS\"}" \
+     --accountId deployer.near --deposit 10 --gas 150000000000000
+   ```
+
+3. **Testing on Testnet First (Recommended)**
+   - Use testnet factory: `sputnik-v2.testnet` or deploy your own factory
+   - Create test accounts for council members
+   - Verify the deployment before attempting on mainnet
+
+4. **Verifying Deployment Success**
+   - Check the deployed DAO account: `<dao-name>.<factory-name>`
+   - View the policy: `near view <dao-name>.<factory-name> get_policy`
+   - Confirm council members: `near view <dao-name>.<factory-name> get_policy | jq '.roles'`
+
+5. **Base64 Encoding Cross-Platform Notes**
+   - **Linux:** Use `base64 -w0` to avoid line wrapping
+   - **macOS:** Use `base64` without flags (no -w0 flag available)
+   - **Alternative:** Use `openssl base64 -A` for consistent behavior across platforms
 
 ---
 
@@ -412,27 +482,30 @@ audit_tracking:
 #### Gas Profiling Commands
 ```bash
 # Measure deployment gas
-near deploy --accountId <contract> --wasmFile contract.wasm \
-  --initFunction new --initArgs '{}' | grep "Transaction cost"
+near contract deploy <contract> use-file contract.wasm \
+  with-init-call new json-args '{}' network-config mainnet sign-with-keychain send \
+  | grep "Transaction cost"
 
 # Profile specific function
-near call <contract> <method> '<args>' --gas 300000000000000 \
-  --accountId <caller> | grep -A2 "gas_burnt"
+near contract call-function as-transaction <contract> <method> json-args '<args>' \
+  prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' \
+  sign-as <caller> network-config mainnet sign-with-keychain send \
+  | grep -A2 "gas_burnt"
 
 # View transaction details
-near tx-status <tx_hash> --accountId <account>
+near transaction view-status <tx_hash> network-config mainnet
 ```
 
 #### Storage Metrics
 ```bash
 # Check before deployment
-near state <contract> | jq '.storage_usage'
+near account view-account-summary <contract> network-config mainnet | jq '.storage_usage'
 
 # Monitor growth rate
-watch -n 60 'near state <contract> | jq ".storage_usage"'
+watch -n 60 'near account view-account-summary <contract> network-config mainnet | jq ".storage_usage"'
 
-# Calculate storage cost
-echo "scale=2; $(near state <contract> | jq '.storage_usage') * 0.00001 / 1000" | bc
+# Calculate storage cost (1 NEAR per 100KB)
+echo "scale=4; $(near account view-account-summary <contract> network-config mainnet | jq '.storage_usage') / 100000" | bc
 ```
 
 #### Performance Monitoring Dashboard
@@ -518,7 +591,7 @@ RUN cargo build --target wasm32-unknown-unknown --release
 
 Verification (always compare on-chain code hash to artifact digest):
 - Compute SHA-256 locally: `sha256sum contract.wasm`
-- Read on-chain code hash (CLI): `near state <contract>`
+- Read on-chain code hash (CLI): `near account view-account-summary <contract> network-config mainnet`
 - Read on-chain via RPC:
 ```bash
 curl -s -X POST <rpc-url> -H 'Content-Type: application/json' \
@@ -548,7 +621,7 @@ Hash Verification SOP (copy-paste):
    req = urllib.request.Request(rpc_url, data=json.dumps(payload).encode(), headers={"Content-Type":"application/json"})
    resp = urllib.request.urlopen(req).read()
    result = json.loads(resp)["result"]
-   onchain_hex = hashlib.sha256(base64.b64decode(result["code_base64"])) .hexdigest()
+   onchain_hex = hashlib.sha256(base64.b64decode(result["code_base64"])).hexdigest()
    local_hex = hashlib.sha256(open("contract.wasm","rb").read()).hexdigest()
    print("local=", local_hex)
    print("onchain=", onchain_hex)
@@ -761,21 +834,26 @@ NEAR CLI (examples):
 sha256sum contract.wasm
 
 # Inspect account state (includes code_hash)
-near state <contract>
+near account view-account-summary <contract> network-config mainnet
 
 # Deploy a contract
-near deploy --accountId <contract> --wasmFile contract.wasm
+near contract deploy <contract> use-file contract.wasm without-init-call network-config mainnet sign-with-keychain send
 
 # Remove a full-access key
-near delete-key <account> <public-key>
+near account delete-key <account> <public-key> network-config mainnet sign-with-keychain send
 
 # Add a function-call key with restricted methods and allowance
-near add-key <account> <public-key> \
-  --contract-id <contract> --method-names <csv-methods> --allowance <amount>
+near account add-key <account> grant-function-call-access \
+  --receiver-account-id <contract> \
+  --method-names <csv-methods> \
+  --allowance <amount> \
+  use-manually-provided-public-key <public-key> \
+  network-config mainnet sign-with-keychain send
 
 # Call a self-upgrade method (if implemented)
-near call <contract> upgrade '{"code":"<base64>"}' \
-  --accountId <governance> --gas 300000000000000
+near contract call-function as-transaction <contract> upgrade json-args '{"code":"<base64>"}' \
+  prepaid-gas '300.0 Tgas' attached-deposit '0 NEAR' \
+  sign-as <governance> network-config mainnet sign-with-keychain send
 ```
 
 RPC (code hash):
