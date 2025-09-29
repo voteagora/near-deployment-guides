@@ -22,4 +22,6 @@ The [House of Stake Deployment Guide](./agora-house-of-stake-deployment-guide.md
 
 The [High‑Value Contract Security Guide (Halborn)](./halborn-high-value-contract-security-guide.md) is specifically for anyone in the NEAR ecosystem that is deploying high‑value contracts or interested in understanding the security considerations and best practices for deploying contracts in the NEAR ecosystem securely.
 
+[Testnet Validation Script Summary](./testnet-validation-script.sh) is a comprehensive script that validates all major NEAR CLI commands and deployment procedures on the testnet network. It tests 10 key areas including account operations, contract deployment, base64 encoding, RPC calls, AstroDAO deployment, transaction viewing, gas profiling, storage metrics, and key management. The script performs dry-run validations and syntax checks rather than executing actual deployments, making it safe to run for testing purposes.
+
 Pull requests are welcome to improve these documents as more teams deploy and operate other high‑value contracts in the NEAR ecosystem.
