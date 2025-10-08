@@ -4,7 +4,7 @@
 
 GM! Welcome to the House of Stake. If you are reading this, that means that you will deploying the House of Stake contracts for the NEAR ecosystem. This is a big responsability given that the Hosue of Stake contracts will eventually hold a lot of NEAR. We want to make sure that the processess you and your security council are preforming are done with the utmost security in mind. 
 
-As part of this deployment guide, Agora has received an approved list of security concerns and best practices for serious NEAR contracts from the auditing firm [Halborn](https://www.halborn.com/). It is the author's expectation that before you go and deploy these contracts on Mainnet that you and your team have read and understand the security concerns in this document: [Deploying and Securing High Value Contracts in the NEAR Ecosystem](https://github.com/voteagora/near-runbooks-temp/blob/main/halborn_runbook.md). This document contains many best practices and considerations around how one should deploy high value NEAR contracts. By continuing on with this deployment guide, you are acknoweldging that you have read and understood these security concerns. 
+As part of this deployment guide, Agora has received an approved list of security concerns and best practices for serious NEAR contracts from the auditing firm [Halborn](https://www.halborn.com/). It is the author's expectation that before you go and deploy these contracts on Mainnet that you and your team have read and understand the security concerns in this document: [Deploying and Securing High Value Contracts in the NEAR Ecosystem](https://github.com/voteagora/near-runbooks-temp/blob/main/halborn_runbook.md). This document contains many best practices and considerations around how one should deploy high value NEAR contracts. By continuing on with this deployment guide, you are acknowledging that you have read and understood these security concerns. 
 
 With that, let's get started deploying the House of Stake.
 
@@ -17,8 +17,8 @@ This document is expected to be followed twice, once for the testnet deployment 
 1. Setup the AstroDAO Multisig on Testnet “Step 1”
 2. Deploy HoS Contracts to Testnet “Step 2”
 3. Notify Agora about the deployment, Agora will perform UAT on the provided addresses
-4. Setup the AstroDAO Multisig on Testnet “Step 1”
-5. Deploy HoS Contracts to Testnet “Step 2”
+4. Setup the AstroDAO Multisig on Mainnet “Step 1”
+5. Deploy HoS Contracts to Mainnet “Step 2”
 6. Notify Agora about the deployment, Agora will Integrate the provided addresses on the production HoS site
 
 ### Step 1 - Deploying a AstroDAO Multisig for the Security Council
@@ -33,7 +33,7 @@ Prerequisites:
 #### What is AstroDAO?
 
 This is a DAO to be used by the security council. It serves as an additional layer of governance that uses proposals to execute actions on-chain. This multi-sig
-contract allows it's members to signal and take actions related to the House of Stake contracts. These contracts are based on SputnikDAO contract 
+contract allows its members to signal and take actions related to the House of Stake contracts. These contracts are based on SputnikDAO contract 
 and utilizes the Astro platform for easy creation. You will need to deploy this prior to completing step 2 in this document.
 
 Using the GUI: [https://astrodao.com/](https://astrodao.com/)
@@ -135,7 +135,7 @@ See the original configuration: [https://github.com/fastnear/house-of-stake-cont
 - `$VENEAR_ACCOUNT_ID` - This should be production account of veNEAR contract
 - `$REVIEWER_ACCOUNT_ID` - Configured to be one or more reviewers accounts from the NF Security Council. The role provides moderation of the proposals, to make sure there is no spam and they follow a guideline for new proposals. The list of accounts can be changed by the `OWNER_ACCOUNT_ID`. 
 
-Since each account has ability to approve and reject the transaction, one option is to use Sputnik DAO contract. But that will require a set of reviewers to vote on every valid proposal from the DAO. Another option is to setup list of trusted moderators that would follow the predefined list of rules for reviewing proposals. When in doubt they can discuss in some off-chain channel to reach consensus. The accounts can be secured by a simple ledger. There are no much security risks except for rejecting a valid proposal or approving an invalid one, voting is still required regardless.
+Since each account has ability to approve and reject the transaction, one option is to use Sputnik DAO contract. But that will require a set of reviewers to vote on every valid proposal from the DAO. Another option is to setup a list of trusted moderators that would follow the predefined list of rules for reviewing proposals. When in doubt they can discuss in some off-chain channel to reach consensus. The accounts can be secured by a simple ledger. There are not many security risks other than rejecting a valid proposal or approving an invalid one, voting is still required regardless.
 - `$OWNER_ACCOUNT_ID` - Should be the same as the veNEAR contract owner.
 - `$VOTING_DURATION_NS` - Should be `7 * 24 * 60 * 60 * 1_000_000_000` - 7 days
 - `$BASE_PROPOSAL_FEE` - This can be set to `0.1 * 10**24`, it's `0.1` NEAR initially but can be adjusted (increased) if there are too much spam and it's hard to moderate. It's non-refundable fee that the proposer pays in addition to added bytes fee.
@@ -156,7 +156,7 @@ The overall deployment flow should be:
 4. Deploy using the guide above to Mainnet
 5. Launch!
 
-Once the deployment is completed and approved by both Agora and the security council on Testnet, all steps will need to be repeated for mainnet deployment mirroring the configurations here 1:1.
+Once the deployment is completed and approved by both Agora and the security council on Testnet, all steps will need to be repeated for Mainnet deployment mirroring the configurations here 1:1.
 
 However, there is a big disclaimer for Mainnet that since the addresses in the NEAR ecosystem are named addresses, we should be critical about what the name is for the deployment. For example, since these contracts will be living for a long time, it would be best to use a name that best describes the contracts such as:
 
