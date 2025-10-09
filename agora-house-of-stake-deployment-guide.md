@@ -56,24 +56,18 @@ At the end of this process you should have:
 Prerequisites:
 
 - NEAR JS CLI installed on a secure machine
-- Root accountID - NF Foundation account with keys owned by the security council
+- Root accountID - NF Foundation account with the desired top-level domain
 - https://github.com/fastnear/house-of-stake-contracts checked out locally
 1. Build Contract sources by running `build_all.sh` in the root directory
-2. Pre-fund addresses: 
-    1. VENEAR_ACCOUNT_ID="v.$ROOT_ACCOUNT_ID"
-    2. VOTING_ACCOUNT_ID="vote.$ROOT_ACCOUNT_ID"
+2. Create sub domains and deploy each contract 
 
 Run the commands:
-
-```bash
-near --quiet account create-account fund-myself $VENEAR_ACCOUNT_ID '2.4 NEAR' autogenerate-new-keypair save-to-keychain sign-as $ROOT_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
-near --quiet account create-account fund-myself $VOTING_ACCOUNT_ID '2.3 NEAR' autogenerate-new-keypair save-to-keychain sign-as $ROOT_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
-```
 
 1. Deploy the veNEAR contract, populating all the parameters based on recommendations below.
 
 ```bash
-near --quiet contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_contract.wasm with-init-call new json-args '{
+near transaction construct-transaction $TOP_LEVEL_ACCOUNT venear.$TOP_LEVEL_ACCOUNT add-action create-account add-action transfer '2.5 NEAR' add-action deploy-contract
+use-file res/release/venear_contract.wasm with-init-call new json-args '{
   "config": {
     "unlock_duration_ns": "'$UNLOCK_DURATION_NS'",
     "staking_pool_whitelist_account_id": "'$STAKING_POOL_WHITELIST_ACCOUNT_ID'",
@@ -85,11 +79,11 @@ near --quiet contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/v
   },
   "venear_growth_config": {
     "annual_growth_rate_ns": {
-      "numerator": "1902587519026",
+      "numerator": "2378234398782",
       "denominator": "1000000000000000000000000000000"
     }
   }
-}' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
+}' prepaid-gas '100.0 Tgas' attached-deposit '0 NEAR' skip network-config $CHAIN_ID sign-with-keychain send
 ```
 
 **Configuration**
@@ -102,10 +96,13 @@ See the original documentation: https://github.com/fastnear/house-of-stake-contr
 - `$OWNER_ACCOUNT_ID` - Given the Halborn runbook this should be the Sputnik DAO account (AstroDAO), for example:`hos-owner.sputnik-dao.near`. The DAO should be secured with multisig like `3/5` or `4/5` and be members of the security council. See the role configurations elaborated in the runbook. Agora as a developer, should have a seat in the multisig or have a separate role with ability to propose new actions.
 - `staking_pool_whitelist_account_id` - Cannot be changed once set, it is fixed towards the mainnet `"lockup-whitelist.near"` that manages whitelist of mainnet pools for lockups. For testnet a new whitelist can be deployed or use the existing: `whitelist.f863973.m0`
 - `$GUARDIAN_ACCOUNT_ID` - These must be the same list of trusted accounts from security council. It gives ability for every of these accounts to individually pause the HoS contract. Paused contracts stop providing merkle balance proofs and state snapshots, so new voting can't be started. I suggest to include individual accounts from the 5 members of security commission as well as Agora developer accounts. There should be strong intersection between members in the multisig and this role. See the runbook for the ceremonies for pausing the contract.
+- `venear_growth_config` Currently set to 7.5% accumulating per nanosecond
+
 1. Deploy and configure the Voting Contract
 
 ```bash
-near --quiet contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
+near transaction construct-transaction $TOP_LEVEL_ACCOUNT vote.$TOP_LEVEL_ACCOUNT add-action create-account add-action transfer '2.5 NEAR' add-action deploy-contract
+use-file res/release/voting_contract.wasm with-init-call new json-args '{
   "config": {
     "venear_account_id": "'$VENEAR_ACCOUNT_ID'",
     "reviewer_ids": ["'$REVIEWER_ACCOUNT_ID'"],
@@ -116,7 +113,7 @@ near --quiet contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/v
     "vote_storage_fee": "'$VOTE_STORAGE_FEE'",
     "guardians": ["'$GUARDIAN_ACCOUNT_ID'"]
   }
-}' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
+}' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' skip network-config $CHAIN_ID sign-with-keychain send
 
 near --quiet contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
 
@@ -125,7 +122,6 @@ near --quiet contract call-function as-transaction $VENEAR_ACCOUNT_ID set_lockup
   "contract_hash": "'$CONTRACT_HASH'",
   "min_lockup_deposit": "'$MIN_LOCKUP_DEPOSIT'"
 }' prepaid-gas '20.0 Tgas' attached-deposit '1 yoctoNEAR' sign-as $OWNER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
-
 ```
 
 **Configuration**
