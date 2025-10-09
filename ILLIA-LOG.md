@@ -22,13 +22,13 @@ bs58: 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd
 ### TestNet
 
 (near doesn't work with registrar account)
- npx near-cli create-account dao-testnet --masterAccount registrar --initialBalance 0.1
+npx near-cli create-account dao-testnet --masterAccount registrar --initialBalance 0.1
 
 near tokens near send-near dao-testnet '1000 NEAR' network-config testnet sign-with-keychain send
 
- near --quiet account create-account fund-myself venear.dao-testnet '2.4 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao-testnet network-config testnet sign-with-keychain send
+near --quiet account create-account fund-myself venear.dao-testnet '2.4 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao-testnet network-config testnet sign-with-keychain send
 
- near --quiet account create-account fund-myself vote.dao-testnet '2.4 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao-testnet network-config testnet sign-with-keychain send
+near --quiet account create-account fund-myself vote.dao-testnet '2.4 NEAR' autogenerate-new-keypair save-to-keychain sign-as dao-testnet network-config testnet sign-with-keychain send
 
 ---
 
