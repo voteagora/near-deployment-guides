@@ -14,23 +14,23 @@ The following guide is a comprehensive set of instructions to enable the NF to b
 
 This document is expected to be followed twice, once for the testnet deployment and then again for the mainnet deployment, with the following macro steps:
 
-1. Setup the AstroDAO Multisig on Testnet “Step 1”
+1. Setup the SputnikDAO Multisig on Testnet “Step 1”
 2. Deploy HoS Contracts to Testnet “Step 2”
 3. Notify Agora about the deployment, Agora will perform UAT on the provided addresses
-4. Setup the AstroDAO Multisig on Mainnet “Step 1”
+4. Setup the SputnikDAO Multisig on Mainnet “Step 1”
 5. Deploy HoS Contracts to Mainnet “Step 2”
 6. Notify Agora about the deployment, Agora will Integrate the provided addresses on the production HoS site
 
-### Step 1 - Deploying a AstroDAO Multisig for the Security Council
+### Step 1 - Deploying a SputnikDAO Multisig for the Security Council
 
 Prerequisites:
 
 - List of security council members
-- Account owned by the NF to perform the AstroDAO deployment
+- Account owned by the NF to perform the SputnikDAO deployment
 - Review Halborn Role configuration section outlined below
 - A good/clear name in mind when creating the DAO i.e `hos-security.$ROOT_ACCOUNT_ID.near`
 
-#### What is AstroDAO?
+#### What is SputnikDAO?
 
 This is a DAO to be used by the security council. It serves as an additional layer of governance that uses proposals to execute actions on-chain. This multi-sig
 contract allows its members to signal and take actions related to the House of Stake contracts. These contracts are based on SputnikDAO contract 
@@ -40,7 +40,7 @@ Using the GUI: [https://neartreasury.com/](https://neartreasury.com/)
 
 Follow the full setup instructions for deployment here: https://github.com/near-daos/sputnik-dao-contract/blob/main/README.md
 
-Configure with the roles outlined in the Halborn Runbook (cite **5. DAO Tooling Comparison (AstroDAO vs Custom Multisig))**:
+Configure with the roles outlined in the Halborn Runbook (cite **5. DAO Tooling Comparison (SputnikDAO vs Custom Multisig))**:
 
 Security council member account IDs should be supplied here when following the instructions outlined in the Sputnik DAO repo:
 `export COUNCIL='["council-member.testnet", "YOUR_ACCOUNT.testnet"]'`
@@ -48,7 +48,7 @@ Security council member account IDs should be supplied here when following the i
 Alternatively, use the configuration example above to start defining roles as advised in the Halborn Runbook. 
 
 At the end of this process you should have:
-- AstroDAO account ID ex. `hos.astrodao.near`
+- SputnikDAO account ID ex. `hos.astrodao.near`
 - This DAO will have the ownership role of the contract
 
 ### Step 2 - Deploying the HoS Contracts
@@ -99,7 +99,7 @@ See the original documentation: https://github.com/fastnear/house-of-stake-contr
 - `$LOCKUP_DEPLOYER_ACCOUNT_ID` - Recommendation is for it to be a developer ledger. When you need to deploy a contract, you can add a full-access key to this account, then call method to add a new lockup, then remove the previous full-access key. This is because the ledger might not be able to sign the large binary transaction.
 - `$UNLOCK_DURATION_NS` - is `90 * 24 * 60 * 60 * 1_000_000_000` 90 days for lockup unlocks
 - `$LOCAL_DEPOSIT` - `0.1 * 10**24`, i.e. `0.1` NEAR to cover storage cost.
-- `$OWNER_ACCOUNT_ID` - Given the Halborn runbook this should be the Sputnik DAO account (AstroDAO), for example:`hos-owner.sputnik-dao.near`. The DAO should be secured with multisig like `3/5` or `4/5` and be members of the security council. See the role configurations elaborated in the runbook. Agora as a developer, should have a seat in the multisig or have a separate role with ability to propose new actions.
+- `$OWNER_ACCOUNT_ID` - Given the Halborn runbook this should be the Sputnik DAO account (SputnikDAO), for example:`hos-owner.sputnik-dao.near`. The DAO should be secured with multisig like `3/5` or `4/5` and be members of the security council. See the role configurations elaborated in the runbook. Agora as a developer, should have a seat in the multisig or have a separate role with ability to propose new actions.
 - `staking_pool_whitelist_account_id` - Cannot be changed once set, it is fixed towards the mainnet `"lockup-whitelist.near"` that manages whitelist of mainnet pools for lockups. For testnet a new whitelist can be deployed or use the existing: `whitelist.f863973.m0`
 - `$GUARDIAN_ACCOUNT_ID` - These must be the same list of trusted accounts from security council. It gives ability for every of these accounts to individually pause the HoS contract. Paused contracts stop providing merkle balance proofs and state snapshots, so new voting can't be started. I suggest to include individual accounts from the 5 members of security commission as well as Agora developer accounts. There should be strong intersection between members in the multisig and this role. See the runbook for the ceremonies for pausing the contract.
 1. Deploy and configure the Voting Contract
@@ -145,7 +145,7 @@ Since each account has ability to approve and reject the transaction, one option
 At the end of the process you should have account IDs:
 - veNEAR:            v.$ROOT_ACCOUNT_ID.near
 - Voting:            vote.$ROOT_ACCOUNT_ID.near
-- AstroDAO and security council roles are properly configured with permissions and roles outlined in the Halborn Runbook
+- SputnikDAO and security council roles are properly configured with permissions and roles outlined in the Halborn Runbook
 
 ### What comes next
 
@@ -180,13 +180,13 @@ CONTRACT_BYTES=`cat ./res/$CONTRACT_SOURCE/CONTRACT_NAME.wasm | base64`
 near call <contract-account> update_contract "$CONTRACT_BYTES" --base64 --accountId <deployer-account> --gas 300000000000000
 ```
 
-For both VeNEAR and the voting contract once the security council ceremony has been completed through AstroDAO.
+For both VeNEAR and the voting contract once the security council ceremony has been completed through SputnikDAO.
 
 Lastly Agora will test deploying new lockup contracts not through `upgrade_contract`; but rather by re-running the new deploy steps above. Commands will be supplied once the account Id's for the existing testnet contracts have been set.
 
 During this Testnet deployment, Agora will simulate a security council with 4 signers by creating testnet wallets and sharing the seed phrases with members of the Near Foundation Security council. 
 
-Please note that this will only happen during the Testnet deployment, for Mainnet, Agora will be one of the Security Council Signers but will not initiate the AstroDAO process to ensure proper configuration from the NF Security Council.
+Please note that this will only happen during the Testnet deployment, for Mainnet, Agora will be one of the Security Council Signers but will not initiate the SputnikDAO process to ensure proper configuration from the NF Security Council.
 
 #### Upgrading Contracts Security Ceremony
 
