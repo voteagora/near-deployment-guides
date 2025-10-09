@@ -70,6 +70,8 @@ near --quiet account create-account fund-myself $VENEAR_ACCOUNT_ID '2.4 NEAR' au
 near --quiet account create-account fund-myself $VOTING_ACCOUNT_ID '2.3 NEAR' autogenerate-new-keypair save-to-keychain sign-as $ROOT_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
 ```
 
+### veNEAR contract deployment
+
 1. Deploy the veNEAR contract, populating all the parameters based on recommendations below.
 
 ```bash
@@ -100,9 +102,13 @@ See the original documentation: https://github.com/fastnear/house-of-stake-contr
 - `$UNLOCK_DURATION_NS` - is `90 * 24 * 60 * 60 * 1_000_000_000` 90 days for lockup unlocks
 - `$LOCAL_DEPOSIT` - `0.1 * 10**24`, i.e. `0.1` NEAR to cover storage cost.
 - `$OWNER_ACCOUNT_ID` - Given the Halborn runbook this should be the Sputnik DAO account (AstroDAO), for example:`hos-owner.sputnik-dao.near`. The DAO should be secured with multisig like `3/5` or `4/5` and be members of the security council. See the role configurations elaborated in the runbook. Agora as a developer, should have a seat in the multisig or have a separate role with ability to propose new actions.
-- `staking_pool_whitelist_account_id` - Cannot be changed once set, it is fixed towards the mainnet `"lockup-whitelist.near"` that manages whitelist of mainnet pools for lockups. For testnet a new whitelist can be deployed or use the existing: `whitelist.f863973.m0`
+- `$STAKING_POOL_WHITELIST_ACCOUNT_ID` - Cannot be changed once set, it is fixed towards the mainnet `"lockup-whitelist.near"` that manages whitelist of mainnet pools for lockups. For testnet a new whitelist can be deployed or use the existing: `whitelist.f863973.m0`
 - `$GUARDIAN_ACCOUNT_ID` - These must be the same list of trusted accounts from security council. It gives ability for every of these accounts to individually pause the HoS contract. Paused contracts stop providing merkle balance proofs and state snapshots, so new voting can't be started. I suggest to include individual accounts from the 5 members of security commission as well as Agora developer accounts. There should be strong intersection between members in the multisig and this role. See the runbook for the ceremonies for pausing the contract.
-1. Deploy and configure the Voting Contract
+ - `$MIN_LOCKUP_DEPOSIT` - ???
+
+### Voting contract deployment
+
+Deploy and configure the Voting Contract
 
 ```bash
 near --quiet contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
@@ -118,10 +124,13 @@ near --quiet contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/v
   }
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 
-near --quiet contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
+near contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
 
 CONTRACT_HASH=$(cat res/$CONTRACTS_SOURCE/lockup_contract.wasm | sha256sum | awk '{ print $1 }' | xxd -r -p | base58)
-near --quiet contract call-function as-transaction $VENEAR_ACCOUNT_ID set_lockup_contract json-args '{
+
+# CONTRACT_HASH: EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1
+
+near contract call-function as-transaction $VENEAR_ACCOUNT_ID set_lockup_contract json-args '{
   "contract_hash": "'$CONTRACT_HASH'",
   "min_lockup_deposit": "'$MIN_LOCKUP_DEPOSIT'"
 }' prepaid-gas '20.0 Tgas' attached-deposit '1 yoctoNEAR' sign-as $OWNER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
@@ -146,6 +155,10 @@ At the end of the process you should have account IDs:
 - veNEAR:            v.$ROOT_ACCOUNT_ID.near
 - Voting:            vote.$ROOT_ACCOUNT_ID.near
 - AstroDAO and security council roles are properly configured with permissions and roles outlined in the Halborn Runbook
+
+### Testing
+
+Next we are going to test the deployment and management of contracts.
 
 ### What comes next
 
