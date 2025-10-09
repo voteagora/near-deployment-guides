@@ -7,18 +7,19 @@
 Security council uses `hos-root.sputnik-dao.near` DAO contract.
 
 See details: https://hos-root.near.page/
+
 Members: https://hos-root.near.page/?page=settings&tab=members
 
 ## Contracts
 
-Github commit: [4c9079df73020b9e35dc807146404f7415b0a0be](https://github.com/fastnear/house-of-stake-contracts/tree/4c9079df73020b9e35dc807146404f7415b0a0be)
+Github commit: [4c9079df73020b9e35dc807146404f7415b0a0be](https://github.com/fastnear/house-of-stake-contracts/tree/4c9079df73020b9e35dc807146404f7415b0a0be) -- v1.0.1
 
 | Account ID | Description | Ownership | Explorer | Contract Hash |
 | - | - | - | - | - |
 | dao | Top level account for all governance contracts | NEAR Foundation | https://nearblocks.io/address/dao | - |
-| venear.dao | Front contract for venear lockups | hos | https://nearblocks.io/address/vnear.dao | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
-| vote.dao | Voting contract | dao-testnet | https://nearblocks.io/address/vote.dao | 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd |
-| - | Lockup contract | venear.dao-testnet | - | EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1 |
+| venear.dao | Front contract for venear lockups | hos-root.sputnik-dao.near | https://nearblocks.io/address/vnear.dao | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
+| vote.dao | Voting contract | hos-root.sputnik-dao.near | https://nearblocks.io/address/vote.dao | 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd |
+| - | Lockup contract | venear.dao | - | EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1 |
 
 ## Parameters
 
@@ -29,7 +30,7 @@ CONTRACTS_SOURCE=release
 # Owner is Security Council DAO
 OWNER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
-# Lockup deployer - security council
+# Lockup deployer - security council?
 LOCKUP_DEPLOYER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
 # Global whitelist managed by NF
@@ -120,7 +121,7 @@ near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_co
 ### Set lockup contract
 
 ```bash
-near contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
+near contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID
 ```
 
 ### Clean up keys
