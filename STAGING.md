@@ -1,4 +1,4 @@
-# MainNet deployment
+# Staging deployment
 
 **NOT LIVE**
 
@@ -16,10 +16,10 @@ Github commit: [4c9079df73020b9e35dc807146404f7415b0a0be](https://github.com/fas
 
 | Account ID | Description | Ownership | Explorer | Contract Hash |
 | - | - | - | - | - |
-| dao | Top level account for all governance contracts | NEAR Foundation | https://nearblocks.io/address/dao | - |
-| venear.dao | Front contract for venear lockups | hos-root.sputnik-dao.near | https://nearblocks.io/address/vnear.dao | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
-| vote.dao | Voting contract | hos-root.sputnik-dao.near | https://nearblocks.io/address/vote.dao | 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd |
-| - | Lockup contract | venear.dao | - | EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1 |
+| stsaingdao.near | Top level account for all governance contracts | NEAR Foundation | https://nearblocks.io/address/stagingdao.near | - |
+| venear.stagingdao.near | Front contract for venear lockups | hos-root.sputnik-dao.near | https://nearblocks.io/address/vnear.stagingdao.near | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
+| vote.stagingdao.near | Voting contract | hos-root.sputnik-dao.near | https://nearblocks.io/address/vote.stagingdao.near | 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd |
+| - | Lockup contract | venear.stagingdao.near | - | EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1 |
 
 ## Parameters
 
@@ -36,9 +36,9 @@ LOCKUP_DEPLOYER_ACCOUNT_ID=hos-root.sputnik-dao.near
 # Global whitelist managed by NF
 STAKING_POOL_WHITELIST_ACCOUNT_ID=lockup-whitelist.near
 
-# Delays
-VOTING_DURATION_NS=604800000000000 # 7 days in ns
-UNLOCK_DURATION_NS=3888000000000000 # 45 days in ns
+# !!! CHANGED FROM MAINNET !!! Delays
+VOTING_DURATION_NS=1800000000000 # 30 minute in ns
+UNLOCK_DURATION_NS=60000000000 # 1 minute in ns
 
 # Guardians that can pause contracts
 set GUARDIAN_ACCOUNT_IDS '[
@@ -75,11 +75,11 @@ VOTE_STORAGE_FEE=1250000000000000000000 # 0.00125N
 ## Deployment
 
 ```bash
-VENEAR_ACCOUNT_ID=venear.dao
-VOTE_ACCOUNT_ID=vote.dao
+VENEAR_ACCOUNT_ID=venear.stagingdao.near
+VOTE_ACCOUNT_ID=vote.stagingdao.near
 ```
 
-### venear.dao
+### venear.stagingdao.near
 
 ```bash
 near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_contract.wasm with-init-call new json-args '{
@@ -101,7 +101,7 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 ```
 
-### vote.dao
+### vote.stagingdao.near
 
 ```bash
 near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
@@ -127,9 +127,9 @@ near contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_cod
 ### Clean up keys
 
 ```bash
-near account list-keys venear.dao network-config mainnet now
-near account delete-keys venear.dao public-keys <KEY> network-config mainnet
+near account list-keys venear.stagingdao.near network-config mainnet now
+near account delete-keys venear.stagingdao.near public-keys <KEY> network-config mainnet
 
-near account list-keys vote.dao network-config mainnet now
-near account delete-keys vote.dao public-keys <KEY> network-config mainnet
+near account list-keys vote.stagingdao.near network-config mainnet now
+near account delete-keys vote.stagingdao.near public-keys <KEY> network-config mainnet
 ```
