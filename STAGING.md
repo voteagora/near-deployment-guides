@@ -41,29 +41,13 @@ VOTING_DURATION_NS=1800000000000 # 30 minute in ns
 UNLOCK_DURATION_NS=60000000000 # 1 minute in ns
 
 # Guardians that can pause contracts
-set GUARDIAN_ACCOUNT_IDS '[
-    "as.near, 
-    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
-    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac,
-    "fastnear-hos.near",
-    "lane.near",
-    "root.near",
-]'
+export GUARDIAN_ACCOUNT_IDS='["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]'
 
 # Reviewers for proposals: security council + screening committee
-set REVIEWER_ACCOUNT_IDS '[
-    "as.near",
-    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
-    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
-    "fastnear-hos.near",
-    "lane.near",
-    "root.near",
-    "guiwickb.near",
-    "gauntletgov.near",
-]'
+export REVIEWER_ACCOUNT_IDS='["as.near","c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near", "guiwickb.near", "gauntletgov.near"]'
 
-# Governance power growing over time (1+VENEAR_GROWTH_NUMERATOR/VENEAR_GROWTH_DENOMINATOR)**(1B*365*60*60*24)
-VENEAR_GROWTH_NUMERATOR=12860000000000 # 50% per annum compounding, calculated in ns
+# Governance power growing over time (VENEAR_GROWTH_NUMERATOR/VENEAR_GROWTH_DENOMINATOR)*(1B*365*60*60*24)
+VENEAR_GROWTH_NUMERATOR=15850000000000 # 50% per annum linear, calculated in ns
 
 # Deposit and fee parameters
 LOCAL_DEPOSIT=100000000000000000000000 # 0.1N, enough for 10000 bytes
@@ -76,7 +60,7 @@ VOTE_STORAGE_FEE=1250000000000000000000 # 0.00125N
 
 ```bash
 VENEAR_ACCOUNT_ID=venear.stagingdao.near
-VOTE_ACCOUNT_ID=vote.stagingdao.near
+VOTING_ACCOUNT_ID=vote.stagingdao.near
 ```
 
 ### venear.stagingdao.near
@@ -86,11 +70,11 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
   "config": {
     "unlock_duration_ns": "'$UNLOCK_DURATION_NS'",
     "staking_pool_whitelist_account_id": "'$STAKING_POOL_WHITELIST_ACCOUNT_ID'",
-    "lockup_code_deployers": ["'$LOCKUP_DEPLOYER_ACCOUNT_ID'"],
+    "lockup_code_deployers": ["hos-root.sputnik-dao.near", "fastnear-hos.near", "voteagora.near", "root.near"],
     "local_deposit": "'$LOCAL_DEPOSIT'",
     "min_lockup_deposit": "'$MIN_LOCKUP_DEPOSIT'",
     "owner_account_id": "'$OWNER_ACCOUNT_ID'",
-    "guardians": $GUARDIAN_ACCOUNT_IDS
+    "guardians": ["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]
   },
   "venear_growth_config": {
     "annual_growth_rate_ns": {
@@ -107,13 +91,13 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
 near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
   "config": {
     "venear_account_id": "'$VENEAR_ACCOUNT_ID'",
-    "reviewer_ids": $REVIEWER_ACCOUNT_IDS,
+    "reviewer_ids": ["as.near","c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near", "guiwickb.near", "gauntletgov.near"],
     "owner_account_id": "'$OWNER_ACCOUNT_ID'",
     "voting_duration_ns": "'$VOTING_DURATION_NS'",
     "max_number_of_voting_options": 16,
     "base_proposal_fee": "'$BASE_PROPOSAL_FEE'",
     "vote_storage_fee": "'$VOTE_STORAGE_FEE'",
-    "guardians": $GUARDIAN_ACCOUNT_IDS
+    "guardians": ["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]
   }
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 ```
@@ -132,4 +116,68 @@ near account delete-keys venear.stagingdao.near public-keys <KEY> network-config
 
 near account list-keys vote.stagingdao.near network-config mainnet now
 near account delete-keys vote.stagingdao.near public-keys <KEY> network-config mainnet
+```
+
+## Configuration
+
+### venear.stagingdao.near
+
+```bash
+near contract call-function as-read-only venear.stagingdao.near get_config json-args {} network-config mainnet now
+{
+  "guardians": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near"
+  ],
+  "local_deposit": "100000000000000000000000",
+  "lockup_code_deployers": [
+    "hos-root.sputnik-dao.near",
+    "fastnear-hos.near",
+    "voteagora.near",
+    "root.near"
+  ],
+  "lockup_contract_config": null,
+  "min_lockup_deposit": "2000000000000000000000000",
+  "owner_account_id": "hos-root.sputnik-dao.near",
+  "proposed_new_owner_account_id": null,
+  "staking_pool_whitelist_account_id": "lockup-whitelist.near",
+  "unlock_duration_ns": "60000000000"
+}
+```
+
+### vote.stagingdao.near
+
+```bash
+near contract call-function as-read-only vote.stagingdao.near get_config json-args {} network-config mainnet now
+{
+  "base_proposal_fee": "100000000000000000000000",
+  "guardians": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near"
+  ],
+  "max_number_of_voting_options": 16,
+  "owner_account_id": "hos-root.sputnik-dao.near",
+  "proposed_new_owner_account_id": null,
+  "reviewer_ids": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near",
+    "guiwickb.near",
+    "gauntletgov.near"
+  ],
+  "venear_account_id": "venear.stagingdao.near",
+  "vote_storage_fee": "1250000000000000000000",
+  "voting_duration_ns": "1800000000000"
+}
 ```

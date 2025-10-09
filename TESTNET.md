@@ -16,7 +16,7 @@ Github commit: [4c9079df73020b9e35dc807146404f7415b0a0be](https://github.com/fas
 ### venear.dao-testnet
 
 ```bash
-$  near contract call-function as-read-only venear.dao-testnet get_config json-args {} network-config testnet now
+near contract call-function as-read-only venear.dao-testnet get_config json-args {} network-config testnet now
 {
   "guardians": [
     "dao-testnet"
