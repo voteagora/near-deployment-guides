@@ -27,17 +27,17 @@ CHAIN_ID=mainnet
 CONTRACTS_SOURCE=release
 
 # Owner is Security Council DAO
-OWNER_ACCOUNT_ID = hos-root.sputnik-dao.near
+OWNER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
-#
-LOCKUP_DEPLOYER_ACCOUNT_ID=
+# Lockup deployer - security council
+LOCKUP_DEPLOYER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
 # Global whitelist managed by NF
-STAKING_POOL_WHITELIST_ACCOUNT_ID = lockup-whitelist.near
+STAKING_POOL_WHITELIST_ACCOUNT_ID=lockup-whitelist.near
 
 # Delays
-VOTING_DURATION_NS = 604800000000000 # 7 days in ns
-UNLOCK_DURATION_NS = 3888000000000000 # 45 days in ns
+VOTING_DURATION_NS=604800000000000 # 7 days in ns
+UNLOCK_DURATION_NS=3888000000000000 # 45 days in ns
 
 # Guardians that can pause contracts
 set GUARDIAN_ACCOUNT_IDS '[
@@ -62,10 +62,13 @@ set REVIEWER_ACCOUNT_IDS '[
 ]'
 
 # Governance power growing over time (1+VENEAR_GROWTH_NUMERATOR/VENEAR_GROWTH_DENOMINATOR)**(1B*365*60*60*24)
-VENEAR_GROWTH_NUMERATOR = 12860000000000 # 50% per annum compounding, calculated in ns
+VENEAR_GROWTH_NUMERATOR=12860000000000 # 50% per annum compounding, calculated in ns
 
-LOCAL_DEPOSIT=
-MIN_LOCKUP_DEPOSIT=
+# Deposit and fee parameters
+LOCAL_DEPOSIT=100000000000000000000000 # 0.1N, enough for 10000 bytes
+MIN_LOCKUP_DEPOSIT=2000000000000000000000000 # 2N
+BASE_PROPOSAL_FEE=100000000000000000000000 # 0.1N
+VOTE_STORAGE_FEE=1250000000000000000000 # 0.00125N
 ```
 
 ## Deployment
@@ -75,7 +78,7 @@ VENEAR_ACCOUNT_ID=venear.dao
 VOTE_ACCOUNT_ID=vote.dao
 ```
 
-## venear.dao
+### venear.dao
 
 ```bash
 near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_contract.wasm with-init-call new json-args '{
@@ -97,7 +100,7 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 ```
 
-## vote.dao
+### vote.dao
 
 ```bash
 near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
@@ -114,13 +117,13 @@ near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_co
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 ```
 
-## Set lockup contract
+### Set lockup contract
 
 ```bash
 near contract call-function as-transaction $VENEAR_ACCOUNT_ID prepare_lockup_code file-args res/$CONTRACTS_SOURCE/lockup_contract.wasm prepaid-gas '100.0 Tgas' attached-deposit '1.98 NEAR' sign-as $LOCKUP_DEPLOYER_ACCOUNT_ID network-config $CHAIN_ID sign-with-keychain send
 ```
 
-## Clean up
+### Clean up keys
 
 ```bash
 near account list-keys venear.dao network-config mainnet now
