@@ -36,7 +36,7 @@ This is a DAO to be used by the security council. It serves as an additional lay
 contract allows its members to signal and take actions related to the House of Stake contracts. These contracts are based on SputnikDAO contract 
 and utilizes the Astro platform for easy creation. You will need to deploy this prior to completing step 2 in this document.
 
-Using the GUI: [https://astrodao.com/](https://astrodao.com/)
+Using the GUI: [https://neartreasury.com/](https://neartreasury.com/)
 
 Follow the full setup instructions for deployment here: https://github.com/near-daos/sputnik-dao-contract/blob/main/README.md
 
@@ -187,3 +187,40 @@ Lastly Agora will test deploying new lockup contracts not through `upgrade_contr
 During this Testnet deployment, Agora will simulate a security council with 4 signers by creating testnet wallets and sharing the seed phrases with members of the Near Foundation Security council. 
 
 Please note that this will only happen during the Testnet deployment, for Mainnet, Agora will be one of the Security Council Signers but will not initiate the AstroDAO process to ensure proper configuration from the NF Security Council.
+
+#### Upgrading Contracts Security Ceremony
+
+First one of the members must create a proposal with the $CONTRACT_BYTES in the description as well as the contract account ID to be upgraded:
+
+```
+near call EXAMPLE.sputnik-v2.testnet add_proposal '{"proposal": { "description": "Upgrade Contract: v.example.testnet to CONTRACT_BYTES", "kind": "Vote" } }' --accountId $ACCOUNT_ID --gas 150000000000000 --deposit 1
+```
+
+Then, go to a block explorer or view in the UI to retrieve the proposal ID. Or immediately run:
+
+```
+near view example.sputnik-v2.testnet get_last_proposal_id
+```
+
+Members of the Security Council will be able to vote by running the following:
+
+```
+near call EXAMPLE.sputnik-v2.testnet act_proposal '{"id": "$PROPOSAL_ID", "action" : "VoteApprove"}' --accountId $SC_ACCOUNT_ID --gas 150000000000000
+```
+
+or
+
+```
+near call EXAMPLE.sputnik-v2.testnet act_proposal '{"id": "$PROPOSAL_ID", "action" : "VoteReject"}' --accountId $SC_ACCOUNT_ID --gas 150000000000000
+```
+
+Once this proposal has satisfied quorum a new proposal will be created to actually execute the upgrade:
+
+```
+near call example.sputnik-v2.testnet add_proposal '{"proposal": { "description": "Upgrading contract vote.example.testnet", "kind": { "UpgradeRemote": { "receiver_id": "vote.example.testnet", "method_name": "upgrade", "hash": "ZrHnUK9xDpCYkF7U7UVFYeRg3y4WTCTacyf2EqBQ8jd" } } } }' --accountId $SC_ACCOUNT_ID --gas 150000000000000 --deposit 1
+```
+
+Repeat the steps above to retrieve the proposal ID and repeat the steps to vote.
+
+The final transaction to Vote which meets quorum will kick off the contract upgrade from the SputnikDAO. Verify the results by checking the contract code hash
+against the one submitted in the `hash` field above. See the security guide for more details.
