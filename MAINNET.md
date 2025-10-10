@@ -206,6 +206,7 @@ or to completely rebuild contracts and verify them
 
 ```bash
 git clone git@github.com:fastnear/house-of-stake-contracts.git
+git checkout 4c9079df73020b9e35dc807146404f7415b0a0be
 ./build_release.sh
 ```
 
