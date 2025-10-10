@@ -17,7 +17,7 @@ Github commit: [4c9079df73020b9e35dc807146404f7415b0a0be](https://github.com/fas
 | Account ID | Description | Ownership | Explorer | Contract Hash |
 | - | - | - | - | - |
 | dao | Top level account for all governance contracts | NEAR Foundation | https://nearblocks.io/address/dao | - |
-| venear.dao | Front contract for venear lockups | hos-root.sputnik-dao.near | https://nearblocks.io/address/vnear.dao | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
+| venear.dao | Front contract for venear lockups | hos-root.sputnik-dao.near | https://nearblocks.io/address/venear.dao | 3hGeRfDqDzPBpXyDrnCTMoBTdP2Ly4AypjemR6uebj3G |
 | vote.dao | Voting contract | hos-root.sputnik-dao.near | https://nearblocks.io/address/vote.dao | 8AgTdvpLpJcYrGJK3jcS718adCwiTXYRRA5Qx4pT6xqd |
 | - | Lockup contract | venear.dao | - | EV4eXNuKVkcYisktcT4sk9XfFFRvcefy51Qs2hQkhnK1 |
 
@@ -60,7 +60,7 @@ VOTE_STORAGE_FEE=1250000000000000000000 # 0.00125N
 
 ```bash
 VENEAR_ACCOUNT_ID=venear.dao
-VOTE_ACCOUNT_ID=vote.dao
+VOTING_ACCOUNT_ID=vote.dao
 ```
 
 ### venear.dao
@@ -124,12 +124,64 @@ near account delete-keys vote.dao public-keys <KEY> network-config mainnet
 
 ```bash
 near contract call-function as-read-only venear.dao get_config json-args {} network-config mainnet now
+
+{
+  "guardians": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near"
+  ],
+  "local_deposit": "100000000000000000000000",
+  "lockup_code_deployers": [
+    "hos-root.sputnik-dao.near",
+    "fastnear-hos.near",
+    "voteagora.near",
+    "root.near"
+  ],
+  "lockup_contract_config": null,
+  "min_lockup_deposit": "2000000000000000000000000",
+  "owner_account_id": "hos-root.sputnik-dao.near",
+  "proposed_new_owner_account_id": null,
+  "staking_pool_whitelist_account_id": "lockup-whitelist.near",
+  "unlock_duration_ns": "3888000000000000"
+}
 ```
 
 ### vote.dao
 
 ```bash
 near contract call-function as-read-only vote.dao get_config json-args {} network-config mainnet now
+
+{
+  "base_proposal_fee": "100000000000000000000000",
+  "guardians": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near"
+  ],
+  "max_number_of_voting_options": 16,
+  "owner_account_id": "hos-root.sputnik-dao.near",
+  "proposed_new_owner_account_id": null,
+  "reviewer_ids": [
+    "as.near",
+    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
+    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
+    "fastnear-hos.near",
+    "lane.near",
+    "root.near",
+    "guiwickb.near",
+    "gauntletgov.near"
+  ],
+  "venear_account_id": "venear.dao",
+  "vote_storage_fee": "1250000000000000000000",
+  "voting_duration_ns": "1209600000000000"
+}
 ```
 
 ## Log
@@ -137,7 +189,9 @@ near contract call-function as-read-only vote.dao get_config json-args {} networ
 - `.dao` creation https://www.nearblocks.io/txns/JAMzi8bzmakDutgQKo3XAZC7MLrso54uqqHtQZoHBewW
 - `venear.dao` creation https://nearblocks.io/txns/9rPC6USyAh1kUJAxkntyE7khofPgebR7jKWHJmPDg7D1
 - `vote.dao` creation https://nearblocks.io/txns/4EBHPM9tR95uGky7C9J9MY4QuALxjQyYw7DX1cMKDTpb
-
+- deploy `venear.dao` https://explorer.near.org/transactions/8fbn2mqkBqYSzcmAcimXJhaGeEDkktaauGnMeKeCPff6
+- deploy `vote.dao` https://explorer.near.org/transactions/6pGbgTotmZiQgjZpPdWEQHVDifiXNyk33EhVqNWgKQGy
+- upload lockup contract to `venear.dao` https://explorer.near.org/transactions/7zXJm5GJsEfoKdnrkXavqRoBmUzLYrVWr35FCQvmhHD6
 
 ### Verify contracts
 
@@ -147,3 +201,12 @@ To self verify binaries of the contracts run following commands and compare with
 near contract verify deployed-at venear.dao network-config mainnet now
 near contract verify deployed-at vote.dao network-config mainnet now
 ```
+
+or to completely rebuild contracts and verify them
+
+```bash
+git clone git@github.com:fastnear/house-of-stake-contracts.git
+./build_release.sh
+```
+
+and inspect the resulting bs58 hashes of the built contracts.
