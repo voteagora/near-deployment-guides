@@ -31,7 +31,7 @@ CONTRACTS_SOURCE=release
 OWNER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
 # Lockup deployer - security council + NF
-LOCKUP_DEPLOYER_ACCOUNT_ID=hos-root.sputnik-dao.near
+export LOCKUP_DEPLOYER_ACCOUNT_ID='["hos-root.sputnik-dao.near", "fastnear-hos.near", "voteagora.near", "root.near"]'
 
 # Global whitelist managed by NF
 STAKING_POOL_WHITELIST_ACCOUNT_ID=lockup-whitelist.near

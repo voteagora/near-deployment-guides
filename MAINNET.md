@@ -31,39 +31,23 @@ CONTRACTS_SOURCE=release
 OWNER_ACCOUNT_ID=hos-root.sputnik-dao.near
 
 # Lockup deployer - security council + NF
-LOCKUP_DEPLOYER_ACCOUNT_ID=hos-root.sputnik-dao.near
+export LOCKUP_DEPLOYER_ACCOUNT_ID='["hos-root.sputnik-dao.near", "fastnear-hos.near", "voteagora.near", "root.near"]'
 
 # Global whitelist managed by NF
 STAKING_POOL_WHITELIST_ACCOUNT_ID=lockup-whitelist.near
 
 # Delays
-VOTING_DURATION_NS=604800000000000 # 7 days in ns
+VOTING_DURATION_NS=1209600000000000 # 14 days in ns
 UNLOCK_DURATION_NS=3888000000000000 # 45 days in ns
 
 # Guardians that can pause contracts
-set GUARDIAN_ACCOUNT_IDS '[
-    "as.near, 
-    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
-    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac,
-    "fastnear-hos.near",
-    "lane.near",
-    "root.near",
-]'
+export GUARDIAN_ACCOUNT_IDS='["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]'
 
 # Reviewers for proposals: security council + screening committee
-set REVIEWER_ACCOUNT_IDS '[
-    "as.near",
-    "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816",
-    "e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac",
-    "fastnear-hos.near",
-    "lane.near",
-    "root.near",
-    "guiwickb.near",
-    "gauntletgov.near",
-]'
+export REVIEWER_ACCOUNT_IDS='["as.near","c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near", "guiwickb.near", "gauntletgov.near"]'
 
-# Governance power growing over time (1+VENEAR_GROWTH_NUMERATOR/VENEAR_GROWTH_DENOMINATOR)**(1B*365*60*60*24)
-VENEAR_GROWTH_NUMERATOR=12860000000000 # 50% per annum compounding, calculated in ns
+# Governance power growing over time (VENEAR_GROWTH_NUMERATOR/VENEAR_GROWTH_DENOMINATOR)*(1B*365*60*60*24)
+VENEAR_GROWTH_NUMERATOR=15850000000000 # 50% per annum linear, calculated in ns
 
 # Deposit and fee parameters
 LOCAL_DEPOSIT=100000000000000000000000 # 0.1N, enough for 10000 bytes
@@ -86,11 +70,11 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
   "config": {
     "unlock_duration_ns": "'$UNLOCK_DURATION_NS'",
     "staking_pool_whitelist_account_id": "'$STAKING_POOL_WHITELIST_ACCOUNT_ID'",
-    "lockup_code_deployers": ["'$LOCKUP_DEPLOYER_ACCOUNT_ID'"],
+    "lockup_code_deployers": ["hos-root.sputnik-dao.near", "fastnear-hos.near", "voteagora.near", "root.near"],
     "local_deposit": "'$LOCAL_DEPOSIT'",
     "min_lockup_deposit": "'$MIN_LOCKUP_DEPOSIT'",
     "owner_account_id": "'$OWNER_ACCOUNT_ID'",
-    "guardians": $GUARDIAN_ACCOUNT_IDS
+    "guardians": ["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]
   },
   "venear_growth_config": {
     "annual_growth_rate_ns": {
@@ -107,13 +91,13 @@ near contract deploy $VENEAR_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/venear_co
 near contract deploy $VOTING_ACCOUNT_ID use-file res/$CONTRACTS_SOURCE/voting_contract.wasm with-init-call new json-args '{
   "config": {
     "venear_account_id": "'$VENEAR_ACCOUNT_ID'",
-    "reviewer_ids": $REVIEWER_ACCOUNT_IDS,
+    "reviewer_ids": ["as.near","c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near", "guiwickb.near", "gauntletgov.near"],
     "owner_account_id": "'$OWNER_ACCOUNT_ID'",
     "voting_duration_ns": "'$VOTING_DURATION_NS'",
     "max_number_of_voting_options": 16,
     "base_proposal_fee": "'$BASE_PROPOSAL_FEE'",
     "vote_storage_fee": "'$VOTE_STORAGE_FEE'",
-    "guardians": $GUARDIAN_ACCOUNT_IDS
+    "guardians": ["as.near", "c65255255d689f74ae46b0a89f04bbaab94d3a51ab9dc4b79b1e9b61e7cf6816","e953bb69d1129e4da87b99739373884a0b57d5e64a65fdc868478f22e6c31eac", "fastnear-hos.near", "lane.near", "root.near"]
   }
 }' prepaid-gas '10.0 Tgas' attached-deposit '0 NEAR' network-config $CHAIN_ID sign-with-keychain send
 ```
@@ -132,4 +116,34 @@ near account delete-keys venear.dao public-keys <KEY> network-config mainnet
 
 near account list-keys vote.dao network-config mainnet now
 near account delete-keys vote.dao public-keys <KEY> network-config mainnet
+```
+
+## Configuration
+
+### venear.dao
+
+```bash
+near contract call-function as-read-only venear.dao get_config json-args {} network-config mainnet now
+```
+
+### vote.dao
+
+```bash
+near contract call-function as-read-only vote.dao get_config json-args {} network-config mainnet now
+```
+
+## Log
+
+- `.dao` creation https://www.nearblocks.io/txns/JAMzi8bzmakDutgQKo3XAZC7MLrso54uqqHtQZoHBewW
+- `venear.dao` creation https://nearblocks.io/txns/9rPC6USyAh1kUJAxkntyE7khofPgebR7jKWHJmPDg7D1
+- `vote.dao` creation https://nearblocks.io/txns/4EBHPM9tR95uGky7C9J9MY4QuALxjQyYw7DX1cMKDTpb
+
+
+### Verify contracts
+
+To self verify binaries of the contracts run following commands and compare with above hashes:
+
+```bash
+near contract verify deployed-at venear.dao network-config mainnet now
+near contract verify deployed-at vote.dao network-config mainnet now
 ```
